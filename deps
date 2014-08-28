@@ -9,4 +9,3 @@ lisp-parse            master:lisp-parse.js            lib
 lisp-exec             master:lisp-exec.js             lib
 lisp-core             master:lisp-core.js             lib
 lisp-core             master:lisp-core.lisp           lib
-lisp-compile-basic    master:lisp-compile-basic.lisp  lib
