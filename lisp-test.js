@@ -51,6 +51,8 @@ L.jn("*out*", function (a){
 
 //sefn(cmb(out, dmp));
 
+L.evlf("lib/lisp-compile-basic.lisp");
+
 L.evlf("lisp-test.lisp");
 
 run();

@@ -11,9 +11,10 @@
   (prn "Running tests...")
   (prn)
   (each (a x st) *tests*
-    (when (no (x (evl a)))
-      (= *allpass* nil)
-      (prn "Failed: $1 -> $2" a st)))
+    (let res (evl a)
+      (when (no (x res))
+        (= *allpass* nil)
+        (prn "Failed: $1 -> $2 != $3" a res st))))
   (if *allpass* (prn "Passed all tests!")))
 
 (bytwo tests test)
@@ -30,6 +31,21 @@
   ((fn (a) a))              nil
   ((fn (a b c) c))          nil
   ((fn ((a b)) b))          nil
+  
+  (proc (lns "test" "" "" "test"))
+    "test\n\n\ntest"
+    
+  (proc (flns "test" "" "" "test"))
+    "test\ntest"
+  
+  (proc (ind 2 "test" (lvl "test" "hey")))
+    "  test\n  test\n  hey"
+  
+  (proc (lin "test" (lvl "test" "hey" (lvl "test"))))
+    "testtest\n    hey\n    test"
+  
+  (proc (ind 2 (lin "test" (lvl "test" "hey"))))
+    "  testtest\n      hey"
   
   ;(err runtests "Testing")  4
   
