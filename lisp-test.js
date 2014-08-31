@@ -21,7 +21,7 @@ var sefn = $.sefn;
 var res = $("results");
 var pg = $("page");
 
-function run(){
+/*function run(){
   try {
     L.calsym("runtests");
   } catch (e){
@@ -55,4 +55,4 @@ L.evlf("lib/lisp-compile-basic.lisp");
 
 L.evlf("lisp-test.lisp");
 
-run();
+run();*/
