@@ -656,6 +656,22 @@ test('L.iso(L.revlis(L.lis(1, 2, 3), L.st("hey")),' +
            'L.lisd(3, 2, 1, L.st("hey")))',
        true);
 
+//// Group ////
+
+test('L.dsj(L.spl(L.st("testegest"), L.sy("t")))', "(\"\" \"es\" \"eges\" \"\")");
+test('L.iso(L.spl(L.lis(1, 2, 3, 4, 1, 2, 5), ' +
+                 'L.lbn(function (a){return a === 1;})), ' +
+           'L.lis(L.nil(), L.lis(2, 3, 4), L.lis(2, 5)))',
+        true);
+test('L.iso(L.spl(L.arr(1, 2, 3, 4, 1, 2, 5), ' +
+                 'L.lbn(function (a){return a === 1;})), ' +
+           'L.arr(L.arr(), L.arr(2, 3, 4), L.arr(2, 5)))',
+        true);
+test('L.dsj(L.spl(L.sy("testegest"), L.st("t")))', "( es eges )");
+test('L.dsj(L.spl(L.nu("1523634"), L.st("3")))', "(152 6 4)");
+test('L.dsj(L.spl(L.nu("1523634")))', "(1 5 2 3 6 3 4)");
+// test spl x = udf for cons and arr
+
 //// Join ////
 
 test('L.typ(L.joi(L.lis(L.nu("1"), L.st("3"), L.sy("t"), L.sy("nil"))))',
@@ -945,6 +961,48 @@ test('L.bchr(function (a){return a;})(L.nu("0"))', true);
 test('L.bchr(function (a){return a;})(L.st("nil"))', true);
 test('L.bchr(function (a){return a;})(L.cons(1, 2))', true);
 
+
+//// Parser ////
+
+test('L.typ(L.prs1("(test . test test)"))', "ps");
+test('L.dsj(L.gres(L.prs1("(test test)")))', "(test test)");
+test('L.dsj(L.gres(L.prs1("(test . test test)")))', "(test . test test)");
+test('L.dsj(L.gres(L.prs1("(. test)")))', "(. test)");
+
+test('L.nilp(L.gres(L.plissec(")")))', true);
+test('L.nilp(L.gres(L.plissec("]", "]")))', true);
+test('L.iso(L.gres(L.plissec("test . test]", "]")), ' +
+           'L.cons(L.sy("test"), L.sy("test")))',
+       true);
+
+test('L.iso(L.gres(L.psec("test test . test)")), ' +
+           'L.lis(L.sy("test"), L.sy("test"), L.sy("."), L.sy("test")))',
+       true);
+test('L.nilp(L.gres(L.psec(")")))', true);
+
+test('L.iso(L.gres(L.psecn("test test . test")), ' +
+           'L.lis(L.sy("test"), L.sy("test"), L.sy("."), L.sy("test")))',
+       true);
+test('L.nilp(L.gres(L.psecn("")))', true);
+
+test('L.dsj(L.gres(L.psecn("test test")))', "(test test)");
+test('L.iso(L.gres(L.psecn("test test . test")), ' +
+           'L.lis(L.sy("test"), L.sy("test"), L.sy("."), L.sy("test")))',
+       true);
+test('L.nilp(L.gres(L.psecn("")))', true);
+
+test('L.dat(L.gres(L.prs1("/test/gi#|test|#")))', /test/gi, $.iso);
+
+test('L.typ(L.car(L.gres(L.prs1("#[a b c]"))))', "sym");
+test('L.dat(L.car(L.gres(L.prs1("#[a b c]"))))', "arr");
+test('L.typ(L.car(L.gres(L.prs1("[a b c]"))))', "sym");
+test('L.dat(L.car(L.gres(L.prs1("[a b c]"))))', "nfn");
+test('L.typ(L.car(L.gres(L.prs1("{a b c}"))))', "sym");
+test('L.dat(L.car(L.gres(L.prs1("{a b c}"))))', "obj");
+test('L.typ(L.car(L.gres(L.prs1("#(a b c)"))))', "sym");
+test('L.dat(L.car(L.gres(L.prs1("#(a b c)"))))', "#");
+
+test('L.iso(L.prs("\'\'"), L.lis(L.sy("qt"), L.sy("\'")))', true);
 
 runtests();
 
