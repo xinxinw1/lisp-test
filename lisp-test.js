@@ -1004,6 +1004,8 @@ test('L.dat(L.car(L.gres(L.prs1("#(a b c)"))))', "#");
 
 test('L.iso(L.prs("\'\'"), L.lis(L.sy("qt"), L.sy("\'")))', true);
 
+test('L.iso(L.prs("({})"), L.lis(L.lis(L.sy("obj"))))', true);
+
 runtests();
 
 /*L.jn("*out*", function (a){
