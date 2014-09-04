@@ -401,6 +401,8 @@ test('var a = L.ob({0: L.nu("5"), 1: L.nu("3"), 2: L.nu("7"), 3: L.nu("3")});' +
 
 test('L.jarr(L.lis(1, 2, 3))', [1, 2, 3], $.iso);
 test('L.jarr(L.arr(1, 2, 3))', [1, 2, 3], $.iso);
+test('L.jarr(L.arr())', [], $.iso);
+test('L.jarr(L.nil())', [], $.iso);
 
 test('L.jnum(L.nu("34"))', 34);
 test('L.jnum(L.st("34"))', 34);
@@ -467,6 +469,14 @@ test('L.typ(L.ref1(L.sy("nil"), L.nu("2")))', "sym");
 test('L.dat(L.ref1(L.sy("nil"), L.nu("2")))', "nil");
 test('L.ref1(L.ob({a: 3, b: 4}), L.st("b"))', 4);
 test('L.ref1(L.ob({a: 3, b: 4, 4: 1}), L.nu("4"))', 1);
+test('L.nilp(L.ref1(L.lis(1, 2, 3), L.nu("3")))', true);
+test('L.nilp(L.ref1(L.arr(1, 2, 3), L.nu("3")))', true);
+test('L.nilp(L.ref1(L.st("123"), L.nu("3")))', true);
+test('L.nilp(L.ref1(L.ob({a: 3, b: 4}), L.st("c")))', true);
+
+test('L.nilp(L.ref(L.lis(1, 2, 3), L.nu("-3")))', true);
+test('L.nilp(L.ref(L.arr(1, 2, 3), L.nu("-3")))', true);
+test('L.nilp(L.ref(L.st("123"), L.nu("-3")))', true);
 
 test('L.ref(L.arr(L.arr(1, 2), L.arr(3, 4)), L.nu("0"), L.nu("1"))', 2);
 test('L.typ(L.ref(L.arr(L.st("test"), L.arr(3, 4)), L.nu("0"), L.nu("1")))',
@@ -495,6 +505,9 @@ test('L.dat(L.las(L.st("testing")))', "g");
 
 test('L.iso(L.apl(L.jn(L.lis), L.arr(1, 2, 3)), L.lis(1, 2, 3))', true);
 test('L.iso(L.apl(L.jn(L.arr), L.lis(1, 2, 3)), L.arr(1, 2, 3))', true);
+
+test('L.iso(L.cal(L.jn(L.lis), 1, 2, 3), L.lis(1, 2, 3))', true);
+test('L.iso(L.cal(L.jn(L.arr), 1, 2, 3), L.arr(1, 2, 3))', true);
 
 test('L.iso(L.map(L.jn(function (a){return a+3;}), L.lis(1, 2, 3)),' + 
            'L.lis(4, 5, 6))',
@@ -791,9 +804,17 @@ test('var a = L.arr(1, 2, 3); L.pop(a); L.iso(a, L.arr(1, 2))', true);
 
 //// List ////
 
+test('L.cxr("a")(L.lis(1, 2))', 1);
+test('L.cxr("ad")(L.lis(1, 2))', 2);
+test('L.cxr("adddd")(L.lis(1, 2, 3, 4, 5))', 5);
+test('L.cxr("a", L.lis(1, 2))', 1);
+test('L.cxr("adddd", L.lis(1, 2, 3, 4, 5))', 5);
+
 test('L.nth(L.nu("0"), L.lis(1, 2, 3))', 1);
 test('L.nth(L.nu("2"), L.lis(1, 2, 3))', 3);
 test('L.nilp(L.nth(L.nu("10"), L.lis(1, 2, 3)))', true);
+test('L.nilp(L.nth(L.nu("-1"), L.lis(1, 2, 3)))', true);
+test('L.nilp(L.nth(L.nu("1.5"), L.lis(1, 2, 3)))', true);
 
 test('var a = L.lis(1, 2, 3); L.ncdr(L.nu("0"), a) === a', true);
 test('var a = L.cons(1, 2); var b = L.cons(10, L.cons(3, a)); ' +
@@ -916,6 +937,19 @@ test('L.dat(L.stf(L.sy("test $1 $2 $3"), ' +
            'L.nu("34"), L.sy("t"), L.st("hey")))', "test 34 t \"hey\"");
 
 
+//// Object ////
+
+test('L.ohas({a: 3}, L.sy("a"))', true);
+test('L.ohas({a: 3}, L.sy("b"))', false);
+test('var a = {a: 3}; L.oput(a, L.sy("a"), 65); a.a', 65);
+/*testdef('L.orem');
+testdef('L.oref');
+testdef('L.oset');
+testdef('L.osetp');
+testdef('L.odel');
+testdef('L.oren');
+testdef('L.owith');*/
+
 //// Checkers ////
 
 test('L.typ(L.chku(undefined))', "sym");
@@ -961,8 +995,24 @@ test('L.bchr(function (a){return a;})(L.nu("0"))', true);
 test('L.bchr(function (a){return a;})(L.st("nil"))', true);
 test('L.bchr(function (a){return a;})(L.cons(1, 2))', true);
 
+//// Other ////
+
+test('L.dol(1, 2, 3, 4, 5)', 5);
+test('L.nilp(L.dol())', true);
+test('L.dol(1)', 1);
+
+test('L.do1(1, 2, 3, 4, 5)', 1);
+test('L.nilp(L.do1())', true);
+test('L.do1(1)', 1);
+
+/*testdef('L.gs');
+testdef('L.gsn');*/
+
 
 //// Parser ////
+
+test('L.typ(L.car(L.prs("(1)")))', "num");
+test('L.dat(L.car(L.prs("(1)")))', "1");
 
 test('L.typ(L.prs1("(test . test test)"))', "ps");
 test('L.dsj(L.gres(L.prs1("(test test)")))', "(test test)");
@@ -991,7 +1041,9 @@ test('L.iso(L.gres(L.psecn("test test . test")), ' +
        true);
 test('L.nilp(L.gres(L.psecn("")))', true);
 
-test('L.dat(L.gres(L.prs1("/test/gi#|test|#")))', /test/gi, $.iso);
+test('L.dat(L.gres(L.prs1("#\\"test\\"gi#|test|#")))', /test/gi, $.iso);
+// L.dat(L.gres(L.prs1("test#\"\\\"test\"gi")))
+test('L.dat(L.gres(L.prs1("test#\\"\\\\\\"test\\"gi")))', "test");
 
 test('L.typ(L.car(L.gres(L.prs1("#[a b c]"))))', "sym");
 test('L.dat(L.car(L.gres(L.prs1("#[a b c]"))))', "arr");
