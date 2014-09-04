@@ -633,6 +633,15 @@ test('L.dat(L.len(L.ob({a: 3, b: 4})))', "2");
 test('L.typ(L.len(L.nil()))', "num");
 test('L.dat(L.len(L.nil()))', "0");
 
+test('L.emp(L.lis())', true);
+test('L.emp(L.lis(L.nil()))', false);
+test('L.emp(L.arr())', true);
+test('L.emp(L.arr(1))', false);
+test('L.emp(L.st(""))', true);
+test('L.emp(L.st("1"))', false);
+test('L.emp(L.ob({}))', true);
+test('L.emp(L.ob({a: 3}))', false);
+
 test('L.iso(L.cpy(L.lis(1, 2, 3)), L.lis(1, 2, 3))', true);
 test('L.iso(L.cpy(L.arr(1, 2, 3)), L.arr(1, 2, 3))', true);
 test('L.iso(L.cpy(L.ob({a: 3, b: 4})), L.ob({a: 3, b: 4}))', true);
@@ -680,6 +689,70 @@ test('L.iso(L.revlis(L.lis(1, 2, 3), L.st("hey")),' +
            'L.lisd(3, 2, 1, L.st("hey")))',
        true);
 
+//// Parts ////
+
+test('L.iso(L.sli(L.lis(1, 2, 3), L.nu("1")), ' +
+           'L.lis(2, 3))',
+       true);
+test('L.iso(L.sli(L.lis(1, 2, 3, 4, 5), L.nu("1"), L.nu("3")), ' +
+           'L.lis(2, 3))',
+       true);
+test('L.iso(L.sli(L.arr(1, 2, 3), L.nu("1")), ' +
+           'L.arr(2, 3))',
+       true);
+test('L.iso(L.sli(L.arr(1, 2, 3, 4, 5), L.nu("1"), L.nu("3")), ' +
+           'L.arr(2, 3))',
+       true);
+test('L.typ(L.sli(L.st("123"), L.nu("1")))', "str");
+test('L.dat(L.sli(L.st("123"), L.nu("1")))', "23");
+test('L.typ(L.sli(L.st("12345"), L.nu("1"), L.nu("3")))', "str");
+test('L.dat(L.sli(L.st("12345"), L.nu("1"), L.nu("3")))', "23");
+test('L.iso(L.sli(L.lis(1, 2, 3), L.nu("6")), ' +
+           'L.lis())',
+       true);
+test('L.iso(L.sli(L.arr(1, 2, 3), L.nu("6")), ' +
+           'L.arr())',
+       true);
+test('L.iso(L.sli(L.lis(1, 2, 3, 4, 5), L.nu("1"), L.nu("-3")), ' +
+           'L.lis())',
+       true);
+test('L.iso(L.sli(L.arr(1, 2, 3, 4, 5), L.nu("1"), L.nu("-3")), ' +
+           'L.arr())',
+       true);
+test('L.typ(L.sli(L.st("123"), L.nu("6")))', "str");
+test('L.dat(L.sli(L.st("123"), L.nu("6")))', "");
+test('L.typ(L.sli(L.st("12345"), L.nu("1"), L.nu("-3")))', "str");
+test('L.dat(L.sli(L.st("12345"), L.nu("1"), L.nu("-3")))', "");
+
+test('L.iso(L.fstn(L.nu("2"), L.lis(1, 2, 3, 4, 5)), L.lis(1, 2))', true);
+test('L.iso(L.fstn(L.nu("2"), L.arr(1, 2, 3, 4, 5)), L.arr(1, 2))', true);
+test('L.typ(L.fstn(L.nu("2"), L.st("12345")))', "str");
+test('L.dat(L.fstn(L.nu("2"), L.st("12345")))', "12");
+test('L.nilp(L.fstn(L.nu("2"), L.lis()))', true);
+test('L.iso(L.fstn(L.nu("2"), L.arr()), L.arr())', true);
+test('L.typ(L.fstn(L.nu("2"), L.st("")))', "str");
+test('L.dat(L.fstn(L.nu("2"), L.st("")))', "");
+
+// rstn
+
+test('L.iso(L.rst(L.lis(1, 2, 3, 4, 5)), L.lis(2, 3, 4, 5))', true);
+test('L.iso(L.rst(L.arr(1, 2, 3, 4, 5)), L.arr(2, 3, 4, 5))', true);
+test('L.typ(L.rst(L.st("12345")))', "str");
+test('L.dat(L.rst(L.st("12345")))', "2345");
+test('L.nilp(L.rst(L.lis()))', true);
+test('L.iso(L.rst(L.arr()), L.arr())', true);
+test('L.typ(L.rst(L.st("")))', "str");
+test('L.dat(L.rst(L.st("")))', "");
+
+test('L.iso(L.mid(L.lis(1, 2, 3, 4, 5)), L.lis(2, 3, 4))', true);
+test('L.iso(L.mid(L.arr(1, 2, 3, 4, 5)), L.arr(2, 3, 4))', true);
+test('L.typ(L.mid(L.st("12345")))', "str");
+test('L.dat(L.mid(L.st("12345")))', "234");
+test('L.nilp(L.mid(L.lis()))', true);
+test('L.iso(L.mid(L.arr()), L.arr())', true);
+test('L.typ(L.mid(L.st("")))', "str");
+test('L.dat(L.mid(L.st("")))', "");
+
 //// Group ////
 
 test('L.dsj(L.spl(L.st("testegest"), L.sy("t")))', "(\"\" \"es\" \"eges\" \"\")");
@@ -695,6 +768,20 @@ test('L.dsj(L.spl(L.sy("testegest"), L.st("t")))', "( es eges )");
 test('L.dsj(L.spl(L.nu("1523634"), L.st("3")))', "(152 6 4)");
 test('L.dsj(L.spl(L.nu("1523634")))', "(1 5 2 3 6 3 4)");
 // test spl x = udf for cons and arr
+
+function testiso(a, b){
+  return test('L.iso(' + a + ', ' + b + ')', true);
+}
+
+testiso('L.grp(L.lis(1, 2, 3, 4, 5), L.nu("2"))',
+          'L.lis(L.lis(1, 2), L.lis(3, 4), L.lis(5))');
+testiso('L.grp(L.arr(1, 2, 3, 4, 5), L.nu("2"))',
+          'L.arr(L.arr(1, 2), L.arr(3, 4), L.arr(5))');
+testiso('L.grp(L.st("12345"), L.nu("2"))',
+          'L.lis(L.st("12"), L.st("34"), L.st("5"))');
+testiso('L.grp(L.lis(), L.nu("2"))', 'L.lis()');
+testiso('L.grp(L.arr(), L.nu("2"))', 'L.arr()');
+testiso('L.grp(L.st(""), L.nu("2"))', 'L.lis()');
 
 //// Join ////
 
