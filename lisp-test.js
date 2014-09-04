@@ -583,6 +583,17 @@ test('L.has(L.nu("1"), L.nil())', false);
 test('L.has(L.nil(), L.nil())', false);
 
 
+test('L.iso(L.rem(1, L.lis(1, 2, 1, 1, 3, 5, -1, 10)), ' +
+           'L.lis(2, 3, 5, -1, 10))',
+       true);
+test('L.iso(L.rem(1, L.arr(1, 2, 1, 1, 3, 5, -1, 10)), ' +
+           'L.arr(2, 3, 5, -1, 10))',
+       true);
+test('L.typ(L.rem(L.nu("1"), L.st("121135110")))', "str");
+test('L.dat(L.rem(L.nu("1"), L.st("121135110")))', "2350");
+test('L.nilp(L.rem(L.nu("1"), L.nil()))', true);
+
+
 test('L.iso(L.rpl(1, 10, L.lis(1, 2, 3, 1, 4, 5)), L.lis(10, 2, 3, 10, 4, 5))',
        true);
 test('L.iso(L.rpl(1, 10, L.arr(1, 2, 3, 1, 4, 5)), L.arr(10, 2, 3, 10, 4, 5))',
@@ -829,6 +840,9 @@ test('L.nilp(L.nrev(L.nil()))', true);
 
 //// Number ////
 
+test('L.odd(L.nu("153"))', true);
+test('L.odd(L.nu("0"))', false);
+
 test('L.typ(L.add())', "num");
 test('L.dat(L.add())', "0");
 test('L.typ(L.add(L.nu("1")))', "num");
@@ -920,6 +934,9 @@ test('L.ge(L.nu("0.4"), L.nu("0.3"), L.nu("0.2"), L.nu("0.1"))', true);
 test('L.ge(L.nu("-0.1"), L.nu("-0.2"), L.nu("-0.3"), L.nu("-0.4"))', true);
 test('L.ge(L.nu("-0.4"), L.nu("-0.3"), L.nu("-0.2"), L.nu("-0.1"))', false);
 
+test('L.typ(L.rnd(L.nu("1.2353"), L.nu("3")))', "num");
+test('L.dat(L.rnd(L.nu("1.2355"), L.nu("3")))', "1.236");
+
 
 //// String ////
 
@@ -995,6 +1012,10 @@ test('L.bchr(function (a){return a;})(L.nu("0"))', true);
 test('L.bchr(function (a){return a;})(L.st("nil"))', true);
 test('L.bchr(function (a){return a;})(L.cons(1, 2))', true);
 
+//// Error ////
+
+//testerr('L.err(L.car, "Testing $1", L.lis(L.nu("1"), L.nu("2")))', "Error: <jn car(a)>: Testing (1 2)");
+
 //// Other ////
 
 test('L.dol(1, 2, 3, 4, 5)', 5);
@@ -1057,6 +1078,26 @@ test('L.dat(L.car(L.gres(L.prs1("#(a b c)"))))', "#");
 test('L.iso(L.prs("\'\'"), L.lis(L.sy("qt"), L.sy("\'")))', true);
 
 test('L.iso(L.prs("({})"), L.lis(L.lis(L.sy("obj"))))', true);
+
+//// Evaluator ////
+
+// requires lisp-core
+
+function testevl(a, x, f){
+  return test('L.dsj(L.evl(L.prs("' + a + '")))', x, f);
+}
+
+testevl("`1", "1");
+testevl("`a", "a");
+testevl("`(a b c)", "(a b c)");
+testevl("`(a b ,(+ 2 3))", "(a b 5)");
+testevl("`,(+ 2 3)", "5");
+testevl("`(a b `(c ,d ,,(+ 2 3)))", "(a b `(c ,d 5))");
+testevl("``,,(+ 2 3)", "`5");
+testevl("``,(+ 2 3)", "`,(+ 2 3)");
+testevl("``(a b ,(c d ,(+ 2 3)))", "`(a b ,(c d 5))");
+// ...
+
 
 runtests();
 
