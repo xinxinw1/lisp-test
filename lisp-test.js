@@ -253,11 +253,16 @@ test('var a = L.cons(L.nu("34"), L.nu("52")); L.iso(a, a)',
        true);
 test('L.iso(L.ob({a: 3, b: 4}), L.ob({a: 3, b: 4}))', true)
 test('L.iso(L.ob({a: L.st("3"), b: L.st("4")}), L.ob({a: L.st("3"), b: L.st("4")}))', true)
+test('L.iso(L.arr(1, 2, 3), L.arr(1, 2, 3))', true);
+test('L.iso(L.arr(1, 2, 3, 4), L.arr(1, 2, 3))', false);
+test('L.iso(L.arr(L.lis(3), 2, 3), L.arr(L.lis(3), 2, 3))', true);
+test('L.iso(L.lis(L.arr(3), 2, 3), L.lis(L.arr(3), 2, 3))', true);
 
 test('L.inp(L.nu("345"), L.nu("34"), L.sy("test"), L.rx(/test/g), L.st("hey"))',
        false);
 test('L.inp(L.nu("345"), L.nu("34"), L.sy("test"), L.rx(/test/g), L.nu("345"))',
        true);
+
 
 test('var a = L.nil(); L.sta(a, 1, function (){return L.car(a);})', 1);
 test('var a = L.nil(); L.sta(a, 1, function (){return L.car(a);}); L.nilp(a)',
@@ -806,6 +811,27 @@ test('L.dat(L.joi(L.arr(L.nu("1"), L.st("3"), L.sy("t"), L.sy("nil")), ' +
                  'L.sy("hey")))',
        "1hey3heythey");
 
+testiso('L.fla(L.lis(L.lis(1, 2), 3, L.lis(L.lis(1, 2), 4)))',
+          'L.lis(1, 2, 3, L.lis(1, 2), 4)');
+testiso('L.fla(L.arr(L.arr(1, 2), 3, L.arr(L.arr(1, 2), 4)))',
+          'L.arr(1, 2, 3, L.arr(1, 2), 4)');
+testiso('L.fla(L.arr(L.lis(1, 2), 3, L.arr(L.lis(1, 2), 4)))',
+          'L.arr(1, 2, 3, L.lis(1, 2), 4)');
+testiso('L.fla(L.lis(L.arr(1, 2), 3, L.lis(L.arr(1, 2), 4)))',
+          'L.lis(1, 2, 3, L.arr(1, 2), 4)');
+testiso('L.fla(L.lis(L.lis(1, 2), 3, L.lis(L.lis(1, 2), 4)), 10)',
+          'L.lis(1, 2, 10, 3, 10, L.lis(1, 2), 4)');
+testiso('L.fla(L.arr(L.arr(1, 2), 3, L.arr(L.arr(1, 2), 4)), 10)',
+          'L.arr(1, 2, 10, 3, 10, L.arr(1, 2), 4)');
+testiso('L.fla(L.arr(L.lis(1, 2), 3, L.arr(L.lis(1, 2), 4)), 10)',
+          'L.arr(1, 2, 10, 3, 10, L.lis(1, 2), 4)');
+testiso('L.fla(L.lis(L.arr(1, 2), 3, L.lis(L.arr(1, 2), 4)), 10)',
+          'L.lis(1, 2, 10, 3, 10, L.arr(1, 2), 4)');
+testiso('L.fla(L.lis())', 'L.nil()');
+testiso('L.fla(L.arr())', 'L.arr()');
+testiso('L.fla(L.lis(), 35)', 'L.nil()');
+testiso('L.fla(L.arr(), 35)', 'L.arr()');
+
 test('L.nilp(L.app())', true);
 test('L.iso(L.app2(L.lis(1, 2, 3, 4), L.lis(1, 2, 3, 4)), ' +
            'L.lis(1, 2, 3, 4, 1, 2, 3, 4))',
@@ -819,6 +845,11 @@ test('L.iso(L.app2(L.arr(1, 2, 3, 4), L.lis(1, 2, 3, 4)), ' +
 test('L.iso(L.app2(L.arr(1, 2, 3, 4), L.arr(1, 2, 3, 4)), ' +
            'L.arr(1, 2, 3, 4, 1, 2, 3, 4))',
        true);
+testiso('L.app2(L.nil(), L.lis(1))', 'L.lis(1)');
+testiso('L.app2(L.nil(), L.arr(1))', 'L.lis(1)');
+testiso('L.app2(L.nil(), L.nil())', 'L.nil()');
+testiso('L.app2(L.arr(), L.nil())', 'L.arr()');
+testiso('L.app2(L.lis(), L.nil())', 'L.nil()');
 test('L.typ(L.app(L.st("test"), L.sy("hey"), L.nu("0")))', "str");
 test('L.dat(L.app(L.st("test"), L.sy("hey"), L.nu("0")))', "testhey0");
 test('L.typ(L.app(L.sy("test"), L.st("hey"), L.nu("0")))', "sym");
@@ -851,6 +882,9 @@ test('L.fold(L.jn(function (l, a){return l + a;}), ' +
 test('L.fold(L.jn(function (l, a){return Math.pow(l, a);}), ' +
             '2, L.arr(1, 2, 3, 4))',
        16777216);
+test('L.nilp(L.fold(L.jn(L.cons), L.nil()))', true);
+test('L.nilp(L.fold(L.jn(L.cons), L.nil(), L.nil()))', true);
+
 
 test('L.iso(L.foldi(L.jn(function (l, a, i){' +
                           'return L.cons(L.lis(i, a), l);' +
@@ -866,11 +900,15 @@ test('L.iso(L.foldi(L.jn(function (l, a, i){' +
            'L.lis(L.lis(L.nu("3"), 4), L.lis(L.nu("2"), 3), ' +
                  'L.lis(L.nu("1"), 2), L.lis(L.nu("0"), 1)))',
        true);
+test('L.nilp(L.foldi(L.jn(L.cons), L.nil()))', true);
+test('L.nilp(L.foldi(L.jn(L.cons), L.nil(), L.nil()))', true);
 test('L.iso(L.foldr(L.jn(L.cons), L.nil(), L.lis(1, 2, 3, 4)), ' +
            'L.lis(1, 2, 3, 4))',
        true);
 test('L.foldr(L.jn(Math.pow), 1, L.arr(4, 2, 3))',
        65536);
+test('L.nilp(L.foldr(L.jn(L.cons), L.nil()))', true);
+test('L.nilp(L.foldr(L.jn(L.cons), L.nil(), L.nil()))', true);
 test('L.iso(L.foldri(L.jn(function (a, l, i){' +
                           'return L.cons(L.lis(i, a), l);' +
                         '}), ' +
@@ -885,6 +923,25 @@ test('L.iso(L.foldri(L.jn(function (a, l, i){' +
            'L.lis(L.lis(L.nu("0"), 1), L.lis(L.nu("1"), 2), ' +
                  'L.lis(L.nu("2"), 3), L.lis(L.nu("3"), 4)))',
        true);
+test('L.nilp(L.foldri(L.jn(L.cons), L.nil()))', true);
+test('L.nilp(L.foldri(L.jn(L.cons), L.nil(), L.nil()))', true);
+
+//// Array ////
+
+testiso('L.hea(L.lis(1, 2, 3), 10)', 'L.lis(10, 1, 2, 3)');
+testiso('L.hea(L.arr(1, 2, 3), 10)', 'L.arr(10, 1, 2, 3)');
+testiso('L.hea(L.lis(), 10)', 'L.lis(10)');
+testiso('L.hea(L.arr(), 10)', 'L.arr(10)');
+testiso('L.tai(L.lis(1, 2, 3), 10)', 'L.lis(1, 2, 3, 10)');
+testiso('L.tai(L.arr(1, 2, 3), 10)', 'L.arr(1, 2, 3, 10)');
+testiso('L.tai(L.lis(), 10)', 'L.lis(10)');
+testiso('L.tai(L.arr(), 10)', 'L.arr(10)');
+
+//// Other ////
+
+//// Imperative ////
+
+//// Each ////
 
 //// Array ////
 
